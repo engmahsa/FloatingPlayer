@@ -7,6 +7,6 @@ A Swift floating player like YouTube player, using AVPlayer. I've imported AVKit
 I’ve implemented the player using Xib file after that I’ve set frames for every single object at portrait and landscape mode.
 Please check the recored Demo to find how it works.
 
-![Alt Text](https://github.com/engmahsa/Floating-Player/blob/master/Demo.gif?raw=true)
+![Alt Text](https://github.com/engmahsa/FloatingPlayer/blob/master/PlayerDemo.gif?raw=true)
 
 
