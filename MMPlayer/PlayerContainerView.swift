@@ -75,6 +75,9 @@ class PlayerContainerView: UIView    {
     var cashedTime: CGFloat = 0.0
     var sliderChangedValue: CGFloat = 0.0
     
+    let vodLink = ["480p x264", "720p x265", "1080p x265","Adaptive"]
+    var selectedActionSheetIndex = 0
+    
     func initializeView() {
         
         playerContainer.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: playerLayerHeight)
@@ -561,9 +564,7 @@ class PlayerContainerView: UIView    {
     
     //MARK: adaptive action sheet handling
     @IBAction func adaptiveBtnPressed(_ sender: Any) {
-        
-        let vodLink = ["480p x264", "720p x265", "1080p x265","Adaptive"]
-        initializeCustomActionSheetView(vodlinks:vodLink )
+        initializeCustomActionSheetView(vodlinks:vodLink, selectedIndex: selectedActionSheetIndex)
     }
     
     // actionSheet selector initialize
@@ -620,7 +621,7 @@ class PlayerContainerView: UIView    {
     // action sheet implementation
     var parentView: CustomActionSheetContainer?
     var actionSheetContainer: UIView?
-    func initializeCustomActionSheetView(vodlinks: Array<String>){
+    func initializeCustomActionSheetView(vodlinks: Array<String>, selectedIndex: Int){
         var titleArray = Array<String>.init()
         var linkArray = Array<String>.init()
         
@@ -694,7 +695,7 @@ class PlayerContainerView: UIView    {
             customActionSheet?.actionButton.setTitle(title, for: UIControl.State.normal)
             customActionSheet?.actionButton.addTarget(self, action: #selector(actionSheetTapped), for: UIControl.Event.allEvents)
             customActionSheet?.actionButton.tintColor = .white
-            if i == 0 {
+            if i == selectedIndex {
                 customActionSheet?.actionButton.tintColor = .red
             }
         }
@@ -719,13 +720,37 @@ class PlayerContainerView: UIView    {
         guard parentView?.linkDic[key!] != nil else{
             return
         }
-        dismissCustomActionSheet()
         
+        self.updateQualityList(link: (self.parentView?.linkDic[key!])!)
         self.addNewLink(tmpLink: (parentView?.linkDic[key!])!, isLandScape: isVideoLandScape! , buttonTitle: key!)
+        
+        dismissCustomActionSheet()
+    }
+    
+    @objc func updateQualityList(link: String) {
+        if let linkIndex = vodLink.firstIndex(where: {$0 == link}) {
+            self.selectedActionSheetIndex = linkIndex
+            let link = vodLink[linkIndex]
+            actionSheetContainer?.subviews.forEach({ customActionSheet in
+                if let sheet = customActionSheet as? CustomActionSheet {
+                    DispatchQueue.main.async {
+                        if sheet.actionButton.titleLabel?.text == link {
+                            sheet.actionButton.tintColor = .red
+                        } else {
+                            sheet.actionButton.tintColor = .white
+                        }
+                    }
+                    self.setNeedsLayout()
+                }
+            })
+        }
+        
+      
     }
     
     @objc func dismissCustomActionSheet() {
         UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 5, options: [.beginFromCurrentState], animations: {
+            
             self.parentView?.removeFromSuperview()
             self.actionSheetContainer?.removeFromSuperview()
         })
